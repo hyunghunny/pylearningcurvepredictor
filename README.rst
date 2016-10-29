@@ -39,6 +39,7 @@ An example how to use the curve predictor on artificial data. The same procedure
 	MCMC_model = curvemodels.MCMCCurveModel(function=all_models['log_power'],
                                         default_vals=model_defaults['log_power'],
                                         function_der=None)
+
 	params = MCMC_model.default_function_param_array()
 	params =  params + np.random.rand(params.shape[0])
 	y = MCMC_model.function(x, *params)
