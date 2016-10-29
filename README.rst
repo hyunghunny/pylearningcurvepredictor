@@ -48,7 +48,6 @@ An example how to use the curve predictor on artificial data. The same procedure
 1. Specify which kind of curve model you want to use
 2. Simply fit and predict the model with your x and y. 
 3. You can also plot your results:
-
 ::
 	import mcmcmodelplotter
 	plotter = mcmcmodelplotter.MCMCCurveModelPlotter(MCMC_model)
