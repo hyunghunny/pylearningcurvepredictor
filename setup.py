@@ -13,7 +13,7 @@ setup(
     version = "0.1",
     author = "Tobias Domhan",
     author_email = "tdomhan@gmail.com",
-    install_requires = ['numpy', 'docutils>=0.3', 'setuptools', 'matplotlib'],
+    install_requires = ['numpy', 'docutils>=0.3', 'setuptools', 'matplotlib','emcee', 'triangle'],
     description = ("Predicting learning curves in python"),
     license = "BSD",
     keywords = "python learning curves, prediction",

@@ -1,0 +1,5 @@
+import curvemodels
+import numpy as np
+
+
+curve_model = curvemodels.CurveModel()
