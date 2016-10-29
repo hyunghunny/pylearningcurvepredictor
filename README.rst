@@ -29,11 +29,11 @@ Basic Usage (Standalone)
 An example how to use the curve predictor on artificial data. The same procedure applies for any other curve model and function.
 ::
 	from pylrpredictor.curvefunctions import  all_models, model_defaults
-	from pylrpredictor.curvemodels import MCMCCurveModel, MLCurveModel
+	from pylrpredictor.curvemodels import MCMCCurveModel
 	import numpy as np
 	#generate some data for the model
 	x = np.arange(1, 1000)
-	MCMC_model = curvemodels.MCMCCurveModel(function=all_models['log_power'],
+	MCMC_model = MCMCCurveModel(function=all_models['log_power'],
                                         default_vals=model_defaults['log_power'],
                                         function_der=None)
 
@@ -49,8 +49,8 @@ An example how to use the curve predictor on artificial data. The same procedure
 2. Simply fit and predict the model with your x and y. 
 3. You can also plot your results:
 ::
-	import mcmcmodelplotter
-	plotter = mcmcmodelplotter.MCMCCurveModelPlotter(MCMC_model)
+	from pylrpredictor.mcmcmodelplotter import MCMCCurveModelPlotter
+	plotter = MCMCCurveModelPlotter(MCMC_model)
 	plotter.predictive_density_plot(x)
 
 License
