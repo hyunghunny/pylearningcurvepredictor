@@ -21,13 +21,15 @@ Requirements
 Installation
 ------------
 To install the learning curve predictor you can clone the repository and install it manually via
+
 .. code-block:: shell
 	python setup.py install
 
 Basic Usage (Standalone)
 -----------------------
 An example how to use the curve predictor on artificial data. The same procedure applies for any other curve model and function.
-.. code-block:: shell
+
+.. code-block:: python
 	from pylrpredictor.curvefunctions import  all_models, model_defaults
 	from pylrpredictor.curvemodels import MCMCCurveModel, MLCurveModel
 	import numpy as np
@@ -50,7 +52,8 @@ An example how to use the curve predictor on artificial data. The same procedure
 1. Specify which kind of curve model you want to use
 2. Simply fit and predict the model with your x and y. 
 3. You can also plot your results:
-.. code-block:: shell
+
+.. code-block:: python
 	import mcmcmodelplotter
 
 	plotter = mcmcmodelplotter.MCMCCurveModelPlotter(MCMC_model)
