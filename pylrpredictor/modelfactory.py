@@ -1,8 +1,6 @@
 from pylrpredictor.curvefunctions import all_models, curve_combination_models, curve_ensemble_models, model_defaults
 from pylrpredictor.curvemodels import MCMCCurveModel, LinearMCMCCurveModel
 from pylrpredictor.ensemblecurvemodel import CurveEnsemble, CurveModelEnsemble
-from pylrpredictor.mcmcmodelplotter import MCMCCurveModelPlotter, CurveModelEnsemblePlotter, CurveEnsemblePlotter
-from pylrpredictor.mcmcmodelplotter import MCMCCurveModelCombinationPlotter
 from pylrpredictor.curvemodels import MLCurveModel, LinearCurveModel
 from pylrpredictor.curvemodels import  MCMCCurveModelCombination
 

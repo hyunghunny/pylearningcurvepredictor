@@ -76,7 +76,7 @@ class CurveModelEnsemble(Ensemble):
             partial(model_log_likelihood, x_test=x_test, y_test=y_test),
             self.fit_models)
 
-        normalizing_constant = logsumexp(model_log_likelihoods)
+        normalizing_constant = logsumexp(list(model_log_likelihoods))
 
         self.model_probabilities = [np.exp(log_lik - normalizing_constant) for log_lik in model_log_likelihoods]
         return True
