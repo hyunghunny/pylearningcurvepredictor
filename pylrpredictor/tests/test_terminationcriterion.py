@@ -5,19 +5,26 @@ import argparse
 
 from subprocess import Popen, PIPE
 
-from caffe.proto import caffe_pb2
+#from caffe.proto import caffe_pb2
+import json
 
 from pylrpredictor.curvefunctions import  all_models, model_defaults
 from pylrpredictor.terminationcriterion import main
 
 
 def write_xlim(xlim, test_interval=2):
-    solver = caffe_pb2.SolverParameter()
-
-    solver.max_iter = xlim * test_interval
-    solver.test_interval = test_interval
-
-    open("caffenet_solver.prototxt", "w").write(str(solver))
+    #solver = caffe_pb2.SolverParameter()
+    solver = {}
+    
+    #solver.max_iter = xlim * test_interval
+    #solver.test_interval = test_interval
+    solver['max_iter'] = xlim * test_interval
+    solver['test_interval'] = test_interval
+    
+    #open("caffenet_solver.prototxt", "w").write(str(solver))
+    with open("caffenet_solver.prototxt", "w") as jsonfile:
+        json.dump(solver, jsonfile)
+    pass
 
 
 def run_program(cmds):

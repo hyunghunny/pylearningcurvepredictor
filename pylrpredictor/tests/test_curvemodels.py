@@ -21,11 +21,11 @@ class CurveModelTest(unittest.TestCase):
 	            m = LinearCurveModel()
 	        else:
 	            if model_name in model_defaults:
-	                m = MLCurveMovel(function=all_models[model_name],
+	                m = MLCurveModel(function=all_models[model_name],
 	                                 default_vals=model_defaults[model_name],
 	                                 recency_weighting=True)
 	            else:
-	                m = MLCurveMovel(function=all_models[model_name], recency_weighting=True)
+	                m = MLCurveModel(function=all_models[model_name], recency_weighting=True)
 
 	        #generate some data for the model
 	        x = np.arange(1, 1000)

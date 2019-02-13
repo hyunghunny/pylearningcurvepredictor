@@ -1,0 +1,13 @@
+{
+    "python.pythonPath": "C:\\Users\\hyung\\AppData\\Local\\conda\\conda\\envs\\mab\\python.exe",
+    "python.unitTest.unittestArgs": [
+        "-v",
+        "-s",
+        "./pylrpredictor",
+        "-p",
+        "test_*.py"
+    ],
+    "python.unitTest.pyTestEnabled": false,
+    "python.unitTest.nosetestsEnabled": false,
+    "python.unitTest.unittestEnabled": true
+}

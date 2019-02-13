@@ -21,10 +21,10 @@ import os
 import sys
 import argparse
 
-from caffe.proto import caffe_pb2
-import google
-from google.protobuf import text_format
-
+#from caffe.proto import caffe_pb2
+import json
+#from google.protobuf import text_format
+from collections import namedtuple
 import numpy as np
 
 from pylrpredictor.modelfactory import create_model, setup_model_combination
@@ -56,10 +56,16 @@ def cut_beginning(y, threshold=0.05, look_ahead=5):
 
 def get_xlim():
     assert os.path.exists("caffenet_solver.prototxt")
-    solver = caffe_pb2.SolverParameter()
-    solver_txt = open("caffenet_solver.prototxt").read()
+    #solver = caffe_pb2.SolverParameter()
+    #solver_txt = open("caffenet_solver.prototxt").read()
+    solver = None
+    d = None
+    with open("caffenet_solver.prototxt") as jsonfile:
+        d = json.load(jsonfile)
     try:
-        google.protobuf.text_format.Merge(solver_txt, solver)
+        #text_format.Merge(solver_txt, solver)
+        solver = namedtuple("SolverParameter",  d.keys())(*d.values())
+
     except Exception as e:
         #this may happen if fields are added. However everything else should be parse
         #hence, it's ok to be ignored
@@ -99,7 +105,8 @@ class TerminationCriterion(object):
             predict f(x), returns 1 if not successful
         """
         #we're are most likely not going to improve, stop!
-        #let's made a prediction of the accuracy that will most likely be reached, that will be returned to the optimizer
+        #let's made a prediction of the accuracy that will most likely be reached, 
+        # that will be returned to the optimizer
         y_predict = self.model.predict(self.xlim, thin=PREDICTION_THINNING)
         #let's do a sanity check:
         if y_predict >= 0. and y_predict <= 1.0:

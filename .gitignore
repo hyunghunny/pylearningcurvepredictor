@@ -1,0 +1,4 @@
+*.pyc
+helloworld
+caffenet_solver.prototxt
+y_predict.txt
