@@ -2,3 +2,5 @@
 helloworld
 caffenet_solver.prototxt
 y_predict.txt
+learning_curve.txt
+ybest.txt
