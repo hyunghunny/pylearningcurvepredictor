@@ -7,18 +7,23 @@ Tobias Domhan, Jost Tobias Springenberg, Frank Hutter. Speeding up Automatic Hyp
 
 ## Installation
 
-Installing a few more packages from mab/hpo environment requires:
+If you are starting from a barebone environment, Install folllowing basic packages:
+```
+conda install numpy scipy matplotlib
+``` 
+
+A few more packages from mab/hpo environment are also required as follows:
 ```
 pip install emcee
 conda install -c conda-forge lmfit
 ```
 
-If you are on Windows, Install following package: triangle
+If you are runing on Windows, Install the following package: triangle
 ```
 python -m pip install packages\triangle-20190115.1-cp27-cp27m-win_amd64.whl
 ```
 
-Otherwise, install it as follow:
+Otherwise, install it from pip as follow:
 ```
 pip install triangle
 ```
@@ -38,5 +43,3 @@ Following names are the surrogates which are available:
  * data30
  * data207
 
-## License
-TBD
