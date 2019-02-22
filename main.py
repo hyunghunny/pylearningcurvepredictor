@@ -39,7 +39,15 @@ class LearningCurvePredictorEvaluator(object):
 
         self.modes = ["conservative", "optimistic"]
         self.prob_types = ["posterior_mean_prob_x_greater_than", "posterior_prob_x_greater_than"]
-        self.results = {}
+        self.results = self.load_results()
+
+    def load_results(self):
+        save_file = "{}.json".format(self.lcr.name)
+        if os.path.exists(save_file):
+            with open(save_file) as json_file:
+                return json.load(json_file)
+        else:
+            return {}
 
     def add_result(self, index, result, save=True):
         self.results[str(index)] = result
@@ -122,10 +130,10 @@ def single_test(surrogate, index):
     lcpe.run(index)
 
 
-def evaluate(surrogate):    
+def evaluate(surrogate, start_index):    
     lcr = LearningCurveReader(surrogate)
     lcpe = LearningCurvePredictorEvaluator(lcr)
-    for i in range(lcr.count()):
+    for i in range(start_index, lcr.count()):
         try:
             lcpe.run(i)
         except Exception as ex:
@@ -136,8 +144,9 @@ if __name__ == "__main__":
     start_time = time.time()
 #    single_test("data207", 5254)
     parser = argparse.ArgumentParser(description='Learning curve predictor evaluation.')
+    parser.add_argument('--start_index', type=int, default=0, help='surrogate benchmark')
     parser.add_argument('surrogate', type=str, help='surrogate benchmark')
 
     args = parser.parse_args()
-    evaluate(args.surrogate)
+    evaluate(args.surrogate, args.start_index)
     print("It takes {} secs".format(int(time.time() - start_time)))
