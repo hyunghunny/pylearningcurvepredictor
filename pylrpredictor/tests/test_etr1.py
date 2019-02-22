@@ -1,12 +1,7 @@
 import unittest
 import numpy as np
 import os
-import argparse
 import json
-
-from subprocess import Popen, PIPE
-
-#from caffe.proto import caffe_pb2
 
 from pylrpredictor.curvefunctions import  all_models, model_defaults
 from pylrpredictor.terminationcriterion import main
@@ -36,7 +31,7 @@ ybest = 1.5
 
 results = {}
 
-class ETRValidator(unittest.TestCase):
+class ETRValidationTest(unittest.TestCase):
 
     def update_result(self, mode, prob_x_greater_type, lr, num_checkpoint, y_predict):
         key = "{}_{}".format(mode, prob_x_greater_type)

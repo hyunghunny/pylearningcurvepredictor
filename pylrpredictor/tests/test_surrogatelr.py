@@ -1,7 +1,6 @@
 import unittest
 import numpy as np
 import os
-import argparse
 import json
 
 import ws.shared.lookup as lookup
