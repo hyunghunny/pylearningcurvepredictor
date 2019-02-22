@@ -4,3 +4,6 @@ caffenet_solver.prototxt
 y_predict.txt
 learning_curve.txt
 ybest.txt
+*.json
+termination_criterion_running
+termination_criterion_running_pid

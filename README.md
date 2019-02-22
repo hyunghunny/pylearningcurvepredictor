@@ -1,6 +1,5 @@
-# pylearningcurvepredictor
-predicting learning curves in python
-
+# Performance evaluation of pylearningcurvepredictor
+Evaluating the predicting learning curves in python
 
 
 ## Paper

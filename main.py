@@ -136,7 +136,7 @@ if __name__ == "__main__":
     start_time = time.time()
 #    single_test("data207", 5254)
     parser = argparse.ArgumentParser(description='Learning curve predictor evaluation.')
-    parser.add_argument('--surrogate', type=str, help='surrogate benchmark')
+    parser.add_argument('surrogate', type=str, help='surrogate benchmark')
 
     args = parser.parse_args()
     evaluate(args.surrogate)
