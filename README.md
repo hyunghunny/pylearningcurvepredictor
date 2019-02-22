@@ -24,10 +24,19 @@ pip install triangle
 ```
 
 ## Usage
-### Standalone
 
-### caffe
+Run as follows to evaluate learning curve prediction performance with surrogate learning curves:
+```
+(prompt) python main.py {surrogate name}
+```
 
+Following names are the surrogates which are available:
+ * data2
+ * data3
+ * data10
+ * data20
+ * data30
+ * data207
 
 ## License
 TBD
