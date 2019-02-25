@@ -112,8 +112,10 @@ class LearningCurvePredictorEvaluator(object):
                     r = self.results[str(index)]
                     if key in r:
                         y_predict = r[key]['y_predict']
+                        if 'y_best' in r[key]:
+                            ybest = r[key]['y_best']
                         print("Restore previous prediction: {}".format(y_predict))
-                while y_predict == None:
+                while ybest <= self.max_ybest:
                     self.prepare(lr, num_checkpoint, ybest)
                     ret = main(mode=mode,
                         prob_x_greater_type=prob_type,
@@ -125,8 +127,6 @@ class LearningCurvePredictorEvaluator(object):
                         break
                     else:
                         ybest += 0.5
-                        if ybest >= self.max_ybest:
-                            break
                 
                 if os.path.exists("y_predict.txt"):
                     y_predict = float(open("y_predict.txt").read())

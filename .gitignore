@@ -7,3 +7,4 @@ ybest.txt
 *.json
 termination_criterion_running
 termination_criterion_running_pid
+term_crit_error.txt
