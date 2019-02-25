@@ -77,14 +77,14 @@ class LearningCurvePredictorEvaluator(object):
             os.remove("ybest.txt")
         if os.path.exists("termination_criterion_running"):    
             os.remove("termination_criterion_running")
-        if os.path.exists("term_crit_error.txt"):    
-            os.remove("term_crit_error.txt")
+        #if os.path.exists("term_crit_error.txt"):    
+        #    os.remove("term_crit_error.txt")
 
-    def prepare(self, lr, num_checkpoint):
+    def prepare(self, lr, num_checkpoint, ybest):
         lr_p = lr[:num_checkpoint]
         np.savetxt("learning_curve.txt", lr_p)
         self.write_xlim()
-        open("ybest.txt", "w").write(str(self.ybest))
+        open("ybest.txt", "w").write(str(ybest))
         open("termination_criterion_running", "w").write("running")
 
     def run(self, index, modes=None, prob_types=None, num_checkpoint=None):
@@ -99,25 +99,38 @@ class LearningCurvePredictorEvaluator(object):
         result = { 
             "lr" : lr,
             "checkpoint" : self.num_checkpoint,
-            "max_acc" : max(lr),
-            "y_best" : self.ybest
+            "max_acc" : max(lr)
              }
         for mode in modes:
             for prob_type in prob_types:
                 key = "{}-{}".format(mode, prob_type)
-                self.prepare(lr, num_checkpoint)
-                ret = main(mode=mode,
-                    prob_x_greater_type=prob_type,
-                    nthreads=4)
-                print("{}:{}-{}:{} returns {}".format(
-                    self.lcr.name, index,
-                    mode, prob_type, ret))
+                ybest = self.ybest
+                ret = 0
                 y_predict = None
+                if str(index) in self.results:
+                    r = self.results[str(index)]
+                    if key in r:
+                        y_predict = r[key]['y_predict']
+                        print("Restore previous prediction: {}".format(y_predict))
+                while y_predict == None:
+                    self.prepare(lr, num_checkpoint, ybest)
+                    ret = main(mode=mode,
+                        prob_x_greater_type=prob_type,
+                        nthreads=4)
+                    print("{}:{}-{}:{} returns {}".format(
+                        self.lcr.name, index,
+                        mode, prob_type, ret))
+                    if ret == 1:
+                        break
+                    else:
+                        ybest += 0.5
+                
                 if os.path.exists("y_predict.txt"):
                     y_predict = float(open("y_predict.txt").read())
                 result[key] = {
                     "y_predict" : y_predict,
-                    "returns" : ret}
+                    "y_best" : ybest
+                    }
 
                 self.cleanup()
         
@@ -141,8 +154,8 @@ def evaluate(surrogate, start_index):
             continue    
 
 if __name__ == "__main__":
-    start_time = time.time()
-#    single_test("data207", 5254)
+#    start_time = time.time()
+#    single_test("data2", 13357)
     parser = argparse.ArgumentParser(description='Learning curve predictor evaluation.')
     parser.add_argument('--start_index', type=int, default=0, help='surrogate benchmark')
     parser.add_argument('surrogate', type=str, help='surrogate benchmark')
