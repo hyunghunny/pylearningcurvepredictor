@@ -35,6 +35,7 @@ class LearningCurvePredictorEvaluator(object):
         lr = self.lcr.get_lr(0)
         self.xlim = len(lr)
         self.ybest = ybest
+        self.max_ybest = 10.0
         self.num_checkpoint = int(self.xlim * 0.5)
 
         self.modes = ["conservative", "optimistic"]
@@ -124,6 +125,8 @@ class LearningCurvePredictorEvaluator(object):
                         break
                     else:
                         ybest += 0.5
+                        if ybest >= self.max_ybest:
+                            break
                 
                 if os.path.exists("y_predict.txt"):
                     y_predict = float(open("y_predict.txt").read())
