@@ -156,9 +156,7 @@ def evaluate(surrogate, start_index):
             print("Exception occurs at {}: {}".format(i, ex))
             continue    
 
-if __name__ == "__main__":
-#    start_time = time.time()
-#    single_test("data2", 13357)
+def run_all(start_time):
     parser = argparse.ArgumentParser(description='Learning curve predictor evaluation.')
     parser.add_argument('--start_index', type=int, default=0, help='surrogate benchmark')
     parser.add_argument('surrogate', type=str, help='surrogate benchmark')
@@ -166,3 +164,10 @@ if __name__ == "__main__":
     args = parser.parse_args()
     evaluate(args.surrogate, args.start_index)
     print("It takes {} secs".format(int(time.time() - start_time)))
+
+if __name__ == "__main__":
+    start_time = time.time()
+#    single_test("data2", 13357)
+    run_all(start_time)
+
+
