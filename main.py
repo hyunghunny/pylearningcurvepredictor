@@ -188,8 +188,8 @@ def run_all(start_time):
 
 if __name__ == "__main__":
     start_time = time.time()
-    single_test("data3", 22)
-#    run_all(start_time)
+#    single_test("data3", 22)
+    run_all(start_time)
     print("It takes {} secs".format(int(time.time() - start_time)))
 
 

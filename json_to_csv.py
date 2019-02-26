@@ -50,6 +50,6 @@ def write_to_csv(results, surrogate):
  
 
 if __name__ == "__main__":
-    s = "data20"
+    s = "data10"
     r = read_json_results(s)
     write_to_csv(r, s)
