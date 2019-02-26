@@ -4,11 +4,18 @@ import argparse
 import time
 
 import numpy as np
+from subprocess import Popen, PIPE
 
 from pylrpredictor.curvefunctions import  all_models, model_defaults
 from pylrpredictor.terminationcriterion import main
 
 import ws.shared.lookup as lookup
+
+def run_program(cmds):
+    process = Popen(cmds, stdout=PIPE)
+    (output, err) = process.communicate()
+    exit_code = process.wait()
+    return exit_code
 
 class LearningCurveReader(object):
     def __init__(self, surrogate, **kwargs):
@@ -30,7 +37,7 @@ class LearningCurveReader(object):
 
 class LearningCurvePredictorEvaluator(object):
     
-    def __init__(self, lcr, ybest=1.5, cp_ratio=0.5):
+    def __init__(self, lcr, ybest=0.5, cp_ratio=0.5):
         self.lcr = lcr # learning curve reader
         lr = self.lcr.get_lr(0)
         self.xlim = len(lr)
@@ -88,7 +95,9 @@ class LearningCurvePredictorEvaluator(object):
         open("ybest.txt", "w").write(str(ybest))
         open("termination_criterion_running", "w").write("running")
 
-    def run(self, index, modes=None, prob_types=None, num_checkpoint=None):
+    def run(self, index, 
+            modes=None, prob_types=None, 
+            num_checkpoint=None, as_process=True, restore=True):
         if modes == None:
             modes = self.modes
         if prob_types == None:
@@ -97,60 +106,71 @@ class LearningCurvePredictorEvaluator(object):
         lr = self.lcr.get_lr(index)
         if num_checkpoint == None:
             num_checkpoint = int(self.xlim * 0.5)
-        result = { 
+        r = { 
             "lr" : lr,
             "checkpoint" : self.num_checkpoint,
             "max_acc" : max(lr)
-             }
+        }
+        if str(index) in self.results:
+            r = self.results[str(index)]
+        
         for mode in modes:
             for prob_type in prob_types:
                 key = "{}-{}".format(mode, prob_type)
-                ybest = self.ybest
+                ybest = max(lr) + 0.5
                 ret = 0
                 y_predict = None
-                if str(index) in self.results:
-                    r = self.results[str(index)]
-                    if key in r:
-                        y_predict = r[key]['y_predict']
-                        if 'y_best' in r[key]:
-                            ybest = r[key]['y_best']
-                        print("Restore previous prediction: {}".format(y_predict))
-                while ybest <= self.max_ybest:
-                    self.prepare(lr, num_checkpoint, ybest)
-                    ret = main(mode=mode,
-                        prob_x_greater_type=prob_type,
-                        nthreads=4)
-                    print("{}:{}-{}:{} returns {}".format(
-                        self.lcr.name, index,
-                        mode, prob_type, ret))
-                    if ret == 1:
-                        break
-                    else:
-                        ybest += 0.5
+                if key in r and restore == True:
+                    y_predict = r[key]['y_predict']
+                    if 'y_best' in r[key]:
+                        ybest = r[key]['y_best']
+                    print("Restore [{}]{}-{}: {}".format(key, mode, prob_type, y_predict))
+                if y_predict == None:
+                    while ybest <= self.max_ybest:
+                        self.prepare(lr, num_checkpoint, ybest)
+                        if as_process == False:
+                            ret = main(mode=mode, prob_x_greater_type=prob_type, nthreads=4)
+                        else:
+                            ret = run_program(["python", "-m", "pylrpredictor.terminationcriterion",
+                                "--nthreads", "5",
+                                "--mode", mode, 
+                                "--prob-x-greater-type", prob_type])                            
+                        
+                        print("{}:{}-{}:{} returns {}".format(
+                            self.lcr.name, index,
+                            mode, prob_type, ret))
+                        if ret == 1:
+                            break
+                        else:
+                            ybest += 0.5
                 
-                if os.path.exists("y_predict.txt"):
-                    y_predict = float(open("y_predict.txt").read())
-                result[key] = {
+                    if os.path.exists("y_predict.txt"):
+                        y_predict = float(open("y_predict.txt").read())
+                r[key] = {
                     "y_predict" : y_predict,
                     "y_best" : ybest
                     }
 
                 self.cleanup()
         
-        self.add_result(index, result)
+        self.add_result(index, r)
 
 
 def single_test(surrogate, index):
     lcr = LearningCurveReader(surrogate)
     lcpe = LearningCurvePredictorEvaluator(lcr)
-    lcpe.run(index)
+    lcpe.run(index, restore=False)
 
 
-def evaluate(surrogate, start_index):    
+def evaluate(surrogate, start_index, end_index=-1):    
     lcr = LearningCurveReader(surrogate)
     lcpe = LearningCurvePredictorEvaluator(lcr)
-    for i in range(start_index, lcr.count()):
+    if end_index == -1:
+        end_index = lcr.count()
+    print("Evaluating {} learning curves...".format(end_index - start_index))
+    for i in range(start_index, end_index):
         try:
+            print("Run with learning curve #{}...".format(i))
             lcpe.run(i)
         except Exception as ex:
             print("Exception occurs at {}: {}".format(i, ex))
@@ -158,16 +178,18 @@ def evaluate(surrogate, start_index):
 
 def run_all(start_time):
     parser = argparse.ArgumentParser(description='Learning curve predictor evaluation.')
-    parser.add_argument('--start_index', type=int, default=0, help='surrogate benchmark')
+    parser.add_argument('--start_index', type=int, default=0, help='Start index')
+    parser.add_argument('--end_index', type=int, default=-1, help='End index, if -1, means all')
     parser.add_argument('surrogate', type=str, help='surrogate benchmark')
 
     args = parser.parse_args()
-    evaluate(args.surrogate, args.start_index)
-    print("It takes {} secs".format(int(time.time() - start_time)))
+    evaluate(args.surrogate, args.start_index, args.end_index)
+    
 
 if __name__ == "__main__":
     start_time = time.time()
-#    single_test("data2", 13357)
-    run_all(start_time)
+    single_test("data3", 22)
+#    run_all(start_time)
+    print("It takes {} secs".format(int(time.time() - start_time)))
 
 
