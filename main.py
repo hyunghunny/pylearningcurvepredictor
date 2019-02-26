@@ -125,7 +125,9 @@ class LearningCurvePredictorEvaluator(object):
                     if 'y_best' in r[key]:
                         ybest = r[key]['y_best']
                     print("Restore [{}]{}-{}: {}".format(key, mode, prob_type, y_predict))
+                
                 if y_predict == None:
+                    print("Run [{}]{}-{}".format(key, mode, prob_type))
                     while ybest <= self.max_ybest:
                         self.prepare(lr, num_checkpoint, ybest)
                         if as_process == False:
