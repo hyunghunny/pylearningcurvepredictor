@@ -124,7 +124,8 @@ class LearningCurvePredictorEvaluator(object):
                     y_predict = r[key]['y_predict']
                     if 'y_best' in r[key]:
                         ybest = r[key]['y_best']
-                    print("Restore [{}]{}: {}".format(index, key, y_predict))
+                    if y_predict != None:
+                        print("Restore [{}]{}: {}".format(index, key, y_predict))
                 
                 if y_predict == None:
                     print("Run [{}]{}".format(index, key))
