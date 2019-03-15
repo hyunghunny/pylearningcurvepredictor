@@ -130,6 +130,7 @@ class LearningCurvePredictorEvaluator(object):
                 if y_predict == None:
                     print("Run [{}] {}".format(index, key))
                     while ybest <= max(lr) + 0.5:#self.max_ybest:
+                        start_time = time.time()
                         self.prepare(lr, num_checkpoint, ybest)
                         if as_process == False:
                             ret = main(mode=mode, prob_x_greater_type=prob_type, nthreads=4)
@@ -155,7 +156,8 @@ class LearningCurvePredictorEvaluator(object):
                         y_predict = 0.0
                 r[key] = {
                     "y_predict" : y_predict,
-                    "y_best" : ybest
+                    "y_best" : ybest,
+                    "est_time": time.time() - start_time 
                     }
 
                 self.cleanup()

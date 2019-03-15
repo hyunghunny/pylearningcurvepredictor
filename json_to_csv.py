@@ -17,8 +17,12 @@ def write_to_csv(results, surrogate):
 
     with open(csv_file, 'w') as f:
         fieldnames = ["index", "checkpoint", "best_acc", 
-                    "con_poster_mean_prob", "con_poster_prob",
-                    "opt_poster_mean_prob", "opt_poster_prob"]
+                      "con_poster_prob",
+                      #"con_poster_mean_prob", 
+                      #"opt_poster_mean_prob", 
+                      #"opt_poster_prob",
+                       "con_poster_prob_eval_time"
+                       ]
         for e in range(max_epoch):
             fieldnames.append("epoch_{}".format(e + 1))
         writer = csv.DictWriter(f, fieldnames=fieldnames, lineterminator='\n')
@@ -35,10 +39,15 @@ def write_to_csv(results, surrogate):
                 row['index'] = index
                 row['checkpoint'] = r["checkpoint"]
                 row['best_acc'] = r["max_acc"]
-                row['con_poster_mean_prob'] = r["conservative-posterior_mean_prob_x_greater_than"]["y_predict"]
-                row['con_poster_prob'] = r["conservative-posterior_prob_x_greater_than"]["y_predict"]
-                row['opt_poster_mean_prob'] = r["optimistic-posterior_mean_prob_x_greater_than"]["y_predict"]
-                row['opt_poster_prob'] = r["optimistic-posterior_prob_x_greater_than"]["y_predict"]
+                if "conservative-posterior_prob_x_greater_than" in r:
+                    con_prob_result = r["conservative-posterior_prob_x_greater_than"]
+                    if "eval_time" in con_prob_result:
+                        row['con_poster_prob_eval_time'] = con_prob_result["eval_time"]
+                    row['con_poster_prob'] = con_prob_result["y_predict"]
+
+                #row['con_poster_mean_prob'] = r["conservative-posterior_mean_prob_x_greater_than"]["y_predict"]
+                #row['opt_poster_mean_prob'] = r["optimistic-posterior_mean_prob_x_greater_than"]["y_predict"]
+                #row['opt_poster_prob'] = r["optimistic-posterior_prob_x_greater_than"]["y_predict"]
                 for i in range(max_epoch):
                     row["epoch_{}".format(i+1)] = lr[i]
 
