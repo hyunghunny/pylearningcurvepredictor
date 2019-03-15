@@ -129,7 +129,7 @@ class LearningCurvePredictorEvaluator(object):
                 
                 if y_predict == None:
                     print("Run [{}] {}".format(index, key))
-                    while ybest <= self.max_ybest:
+                    while ybest <= max(lr) + 0.5:#self.max_ybest:
                         self.prepare(lr, num_checkpoint, ybest)
                         if as_process == False:
                             ret = main(mode=mode, prob_x_greater_type=prob_type, nthreads=4)
