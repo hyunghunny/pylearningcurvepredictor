@@ -45,8 +45,8 @@ class LearningCurvePredictorEvaluator(object):
         self.max_ybest = 10.0
         self.num_checkpoint = int(self.xlim * 0.5)
 
-        self.modes = ["conservative", "optimistic"]
-        self.prob_types = ["posterior_mean_prob_x_greater_than", "posterior_prob_x_greater_than"]
+        self.modes = ["conservative"] #, "optimistic"
+        self.prob_types = ["posterior_prob_x_greater_than"] #"posterior_mean_prob_x_greater_than", 
         self.results = self.load_results()
 
     def load_results(self):
@@ -117,7 +117,7 @@ class LearningCurvePredictorEvaluator(object):
         for mode in modes:
             for prob_type in prob_types:
                 key = "{}-{}".format(mode, prob_type)
-                ybest = max(lr) + 0.5
+                ybest = max(lr) + 0.5 # Unrealistic fatasy to finding stopping prediction value. 
                 ret = 0
                 y_predict = None
                 if key in r and restore == True:
@@ -145,10 +145,14 @@ class LearningCurvePredictorEvaluator(object):
                         if ret == 1:
                             break
                         else:
-                            ybest += 0.5
+                            #ybest += 0.5
+                            # here means no termination.
+                            break 
                 
                     if os.path.exists("y_predict.txt"):
                         y_predict = float(open("y_predict.txt").read())
+                    else:
+                        y_predict = 'continue running'
                 r[key] = {
                     "y_predict" : y_predict,
                     "y_best" : ybest
