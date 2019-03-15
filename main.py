@@ -152,7 +152,7 @@ class LearningCurvePredictorEvaluator(object):
                     if os.path.exists("y_predict.txt"):
                         y_predict = float(open("y_predict.txt").read())
                     else:
-                        y_predict = 'continue running'
+                        y_predict = 0.0
                 r[key] = {
                     "y_predict" : y_predict,
                     "y_best" : ybest
