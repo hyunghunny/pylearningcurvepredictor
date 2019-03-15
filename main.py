@@ -114,6 +114,9 @@ class LearningCurvePredictorEvaluator(object):
         if str(index) in self.results:
             r = self.results[str(index)]
         
+        start_time = None
+        eval_time = None
+        
         for mode in modes:
             for prob_type in prob_types:
                 key = "{}-{}".format(mode, prob_type)
@@ -154,10 +157,12 @@ class LearningCurvePredictorEvaluator(object):
                         y_predict = float(open("y_predict.txt").read())
                     else:
                         y_predict = 0.0
+                if start_time != None:
+                    eval_time = time.time() - start_time
                 r[key] = {
                     "y_predict" : y_predict,
                     "y_best" : ybest,
-                    "est_time": time.time() - start_time 
+                    "est_time": eval_time 
                     }
 
                 self.cleanup()
