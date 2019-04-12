@@ -21,7 +21,7 @@ def write_to_csv(results, surrogate):
                       #"con_poster_mean_prob", 
                       #"opt_poster_mean_prob", 
                       #"opt_poster_prob",
-                       "con_poster_prob_eval_time"
+                       "est_time"
                        ]
         for e in range(max_epoch):
             fieldnames.append("epoch_{}".format(e + 1))
@@ -41,8 +41,8 @@ def write_to_csv(results, surrogate):
                 row['best_acc'] = r["max_acc"]
                 if "conservative-posterior_prob_x_greater_than" in r:
                     con_prob_result = r["conservative-posterior_prob_x_greater_than"]
-                    if "eval_time" in con_prob_result:
-                        row['con_poster_prob_eval_time'] = con_prob_result["eval_time"]
+                    if "est_time" in con_prob_result:
+                        row['est_time'] = con_prob_result["est_time"]
                     row['con_poster_prob'] = con_prob_result["y_predict"]
 
                 #row['con_poster_mean_prob'] = r["conservative-posterior_mean_prob_x_greater_than"]["y_predict"]
@@ -54,7 +54,8 @@ def write_to_csv(results, surrogate):
                 writer.writerow(row)
 
             except Exception as ex:
-                print("Result {} is skipped due to exception.".format(key))
+                print("Result {} is skipped due to exception.".format(index))
+                index += 1
                 continue        
  
 

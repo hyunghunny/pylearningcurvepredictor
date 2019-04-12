@@ -37,13 +37,12 @@ class LearningCurveReader(object):
 
 class LearningCurvePredictorEvaluator(object):
     
-    def __init__(self, lcr, ybest=0.5, cp_ratio=0.5):
+    def __init__(self, lcr, cp_ratio=0.5):
         self.lcr = lcr # learning curve reader
         lr = self.lcr.get_lr(0)
         self.xlim = len(lr)
-        self.ybest = ybest
-        self.max_ybest = 10.0
-        self.num_checkpoint = int(self.xlim * 0.5)
+                
+        self.num_checkpoint = int(self.xlim * cp_ratio)
 
         self.modes = ["conservative"] #, "optimistic"
         self.prob_types = ["posterior_prob_x_greater_than"] #"posterior_mean_prob_x_greater_than", 
@@ -97,18 +96,16 @@ class LearningCurvePredictorEvaluator(object):
 
     def run(self, index, 
             modes=None, prob_types=None, 
-            num_checkpoint=None, as_process=True, restore=True):
+            checkpoints=None, as_process=True, restore=True):
         if modes == None:
             modes = self.modes
         if prob_types == None:
             prob_types = self.prob_types
         
         lr = self.lcr.get_lr(index)
-        if num_checkpoint == None:
-            num_checkpoint = int(self.xlim * 0.5)
+        if checkpoints == None:
+            checkpoints = [self.num_checkpoint]
         r = { 
-            "lr" : lr,
-            "checkpoint" : self.num_checkpoint,
             "max_acc" : max(lr)
         }
         if str(index) in self.results:
@@ -117,55 +114,57 @@ class LearningCurvePredictorEvaluator(object):
         start_time = None
         eval_time = None
         
-        for mode in modes:
-            for prob_type in prob_types:
-                key = "{}-{}".format(mode, prob_type)
-                ybest = max(lr) + 0.5 # Unrealistic fatasy to finding stopping prediction value. 
-                ret = 0
-                y_predict = None
-                if key in r and restore == True:
-                    y_predict = r[key]['y_predict']
-                    if 'y_best' in r[key]:
-                        ybest = r[key]['y_best']
-                    if y_predict != None:
-                        print("Restore [{}] {}: {}".format(index, key, y_predict))
-                
-                if y_predict == None:
-                    print("Run [{}] {}".format(index, key))
-                    while ybest <= max(lr) + 0.5:#self.max_ybest:
-                        start_time = time.time()
-                        self.prepare(lr, num_checkpoint, ybest)
-                        if as_process == False:
-                            ret = main(mode=mode, prob_x_greater_type=prob_type, nthreads=4)
+        for num_checkpoint in checkpoints:
+            for mode in modes:
+                for prob_type in prob_types:
+                    key = "{}-{}-{}".format(num_checkpoint, mode, prob_type)
+                    ybest = max(lr) + 0.5 # Unrealistic fatasy to finding stopping prediction value. 
+                    ret = 0
+                    y_predict = None
+                    if key in r and restore == True:
+                        y_predict = r[key]['y_predict']
+                        if 'y_best' in r[key]:
+                            ybest = r[key]['y_best']
+                        if y_predict != None:
+                            print("Restore [{}] {}: {}".format(index, key, y_predict))
+                    
+                    if y_predict == None:
+                        print("Run [{}] {}".format(index, key))
+                        while ybest <= max(lr) + 0.5:
+                            start_time = time.time()
+                            self.prepare(lr, num_checkpoint, ybest)
+                            if as_process == False:
+                                ret = main(mode=mode, prob_x_greater_type=prob_type, nthreads=4)
+                            else:
+                                ret = run_program(["python", "-m", "pylrpredictor.terminationcriterion",
+                                    "--nthreads", "5",
+                                    "--mode", mode, 
+                                    "--prob-x-greater-type", prob_type])                            
+                            
+                            print("{}:{}-{}-{}:{} returns {}".format(
+                                self.lcr.name, index,
+                                num_checkpoint, mode, prob_type, ret))
+                            if ret == 1:
+                                break
+                            else:
+                                #ybest += 0.5
+                                # here means no termination.
+                                break 
+                    
+                        if os.path.exists("y_predict.txt"):
+                            y_predict = float(open("y_predict.txt").read())
                         else:
-                            ret = run_program(["python", "-m", "pylrpredictor.terminationcriterion",
-                                "--nthreads", "5",
-                                "--mode", mode, 
-                                "--prob-x-greater-type", prob_type])                            
-                        
-                        print("{}:{}-{}:{} returns {}".format(
-                            self.lcr.name, index,
-                            mode, prob_type, ret))
-                        if ret == 1:
-                            break
-                        else:
-                            #ybest += 0.5
-                            # here means no termination.
-                            break 
-                
-                    if os.path.exists("y_predict.txt"):
-                        y_predict = float(open("y_predict.txt").read())
-                    else:
-                        y_predict = 0.0
-                if start_time != None:
-                    eval_time = time.time() - start_time
-                r[key] = {
-                    "y_predict" : y_predict,
-                    "y_best" : ybest,
-                    "est_time": eval_time 
-                    }
+                            y_predict = 0.0
+                    if start_time != None:
+                        eval_time = time.time() - start_time
+                    r[key] = {
+                        "num_checkpoint" : num_checkpoint,
+                        "y_predict" : y_predict,
+                        "y_best" : ybest,
+                        "est_time": eval_time 
+                        }
 
-                self.cleanup()
+                    self.cleanup()
         
         self.add_result(index, r)
 
@@ -175,6 +174,12 @@ def single_test(surrogate, index):
     lcpe = LearningCurvePredictorEvaluator(lcr)
     lcpe.run(index, restore=False)
 
+
+def data207_default_test():
+    lcr = LearningCurveReader('data207')
+    lcpe = LearningCurvePredictorEvaluator(lcr)
+    for index in range(lcr.count()):
+        lcpe.run(index, checkpoints=[30, 60, 90])
 
 def evaluate(surrogate, start_index, end_index=-1):    
     lcr = LearningCurveReader(surrogate)
@@ -203,7 +208,8 @@ def run_all(start_time):
 if __name__ == "__main__":
     start_time = time.time()
 #    single_test("data3", 22)
-    run_all(start_time)
+    data207_default_test()
+    #run_all(start_time)
     print("It takes {} secs".format(int(time.time() - start_time)))
 
 
